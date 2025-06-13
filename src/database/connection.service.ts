@@ -20,9 +20,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   private async testConnection(): Promise<void> {
     try {
-      const book = await this.pool.connect();
-      await book.query('SELECT 1');
-      book.release();
+      const note = await this.pool.connect();
+      await note.query('SELECT 1');
+      note.release();
       console.log('Database connection established succesfully');
     } catch (error) {
       console.error('Failed to connect to database', error);
@@ -31,31 +31,31 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
 
   async query(text: string, params?: any[]): Promise<any> {
-    const book = await this.pool.connect();
+    const note = await this.pool.connect();
     try {
-      const result = await book.query(text, params);
+      const result = await note.query(text, params);
       return result;
     } finally {
-      book.release();
+      note.release();
     }
   }
 
-  async getBook(): Promise<PoolClient> {
+  async getnote(): Promise<PoolClient> {
     return this.pool.connect();
   }
 
-  async Transaction<T>(callback: (Book: PoolClient) => Promise<T>): Promise<T> {
-    const book = await this.pool.connect();
+  async Transaction<T>(callback: (note: PoolClient) => Promise<T>): Promise<T> {
+    const note = await this.pool.connect();
     try {
-      await book.query('BEGIN');
-      const result = callback(book);
-      await book.query('COMMIT');
+      await note.query('BEGIN');
+      const result = callback(note);
+      await note.query('COMMIT');
       return result;
     } catch (error) {
-      await book.query('ROOLBACK');
+      await note.query('ROOLBACK');
       throw error;
     } finally {
-      book.release();
+      note.release();
     }
   }
 }

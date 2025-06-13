@@ -8,7 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { DatabaseService } from 'src/database/connection.serverce';
+import { DatabaseService } from 'src/database/connection.service';
 import { CreateNoteDto } from './dtos/creat-note.dto';
 import { UpdateNoteDto } from './dtos/update-note.dto';
 import { note_book } from './interfaces/note-book.interface';

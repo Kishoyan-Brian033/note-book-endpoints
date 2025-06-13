@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
   Controller,
@@ -18,7 +17,7 @@ import { ApiResponse } from 'src/shared/api-response';
 import { note_book } from './interfaces/note-book.interface';
 
 @Controller('books')
-export class BooksController {
+export class NoteBookController {
   constructor(private readonly noteBookService: NoteBookService) {}
 
   @Post()
