@@ -15,23 +15,21 @@ Content-Type: application/json
 
 ###
 
-### Get all books
-GET http://localhost:3000/books
+### Get all notes 
+GET http://localhost:3000/note-book
 
 ###
 
-### Get only available books
-GET http://localhost:3000/books?available=true
 
 ###
 
 ### Get a single book by ID
-GET http://localhost:3000/books/1
+GET http://localhost:3000/note-book
 
 ###
 
 ### Update a book
-PATCH http://localhost:3000/books
+PATCH http://localhost:3000/note-book
 Content-Type: application/json
 
 {
@@ -41,10 +39,7 @@ Content-Type: application/json
 
 ###
 
-### Soft delete a book (mark unavailable)
-DELETE http://localhost:3000/books/
 
-###
 
-### Permanently delete a book
-DELETE http://localhost:3000/books/1
+### Delete
+DELETE http://localhost:3000/note-book

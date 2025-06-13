@@ -4,7 +4,7 @@ import { NoteBookController } from './note-book.controller';
 import { DatabaseService } from 'src/database/connection.service';
 
 @Module({
-  providers: [NoteBookService],
-  controllers: [NoteBookController, DatabaseService],
+  providers: [NoteBookService, DatabaseService],
+  controllers: [NoteBookController],
 })
 export class NoteBookModule {}
