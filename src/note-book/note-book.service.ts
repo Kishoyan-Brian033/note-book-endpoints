@@ -11,13 +11,14 @@ import {
 import { DatabaseService } from 'src/database/connection.serverce';
 import { CreateNoteDto } from './dtos/creat-note.dto';
 import { UpdateNoteDto } from './dtos/update-note.dto';
+import { note_book } from './interfaces/note-book.interface';
 
 @Injectable()
 export class NoteBookService {
   mapRowToNote: any;
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(data: CreateNoteDto): Promise<Notes> {
+  async create(data: CreateNoteDto): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
         `SELECT * FROM create_note($1, $2, $3)`,
@@ -37,7 +38,7 @@ export class NoteBookService {
     }
   }
 
-  async findAll(): Promise<Note[]> {
+  async findAll(): Promise<note_book[]> {
     try {
       const result = await this.databaseService.query(
         'SELECT * FROM get_all_notes()',
@@ -48,7 +49,7 @@ export class NoteBookService {
       throw new InternalServerErrorException('Failed to retrieve books');
     }
   }
-  async findOne(id: number): Promise<Note> {
+  async findOne(id: number): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
         'SELECT * FROM get_note_by_id($1)',
@@ -65,7 +66,7 @@ export class NoteBookService {
     }
   }
 
-  async update(id: number, data: UpdateNoteDto): Promise<Note> {
+  async update(id: number, data: UpdateNoteDto): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
         `SELECT * FROM sp_update_book($1, $2, $3, $4)`,
@@ -104,11 +105,11 @@ export class NoteBookService {
     }
   }
 
-  private mapRowToBook(row: any): Note {
+  private mapRowToBook(row: any): note_book {
     return {
       id: row.id,
       title: row.title,
-      create_at: row.created_at,
+      created_at: row.created_at,
       content: row.content,
     };
   }
