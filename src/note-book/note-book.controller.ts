@@ -16,6 +16,12 @@ import { CreateNoteDto } from './dtos/creat-note.dto';
 import { UpdateNoteDto } from './dtos/update-note.dto';
 import { ApiResponse } from 'src/shared/api-response';
 import { note_book } from './interfaces/note-book.interface';
+import {
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiBadRequestResponse,
+  ApiInternalServerErrorResponse,
+} from '@nestjs/swagger';
 
 @Controller('note-book')
 export class NoteBookController {
@@ -23,6 +29,16 @@ export class NoteBookController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new note' })
+  @ApiCreatedResponse({
+    description: 'Note successfully created',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal Server Error',
+  })
   async create(@Body() data: CreateNoteDto): Promise<ApiResponse<note_book>> {
     try {
       const note = await this.noteBookService.create(data);
@@ -44,6 +60,8 @@ export class NoteBookController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all notes' })
+  @ApiInternalServerErrorResponse({ description: 'internal server error' })
   async findAll(): Promise<ApiResponse<note_book[]>> {
     try {
       const notes = await this.noteBookService.findAll();
@@ -65,6 +83,7 @@ export class NoteBookController {
   }
 
   @Get(':id')
+  @ApiInternalServerErrorResponse({ description: 'internal server error' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<note_book>> {
