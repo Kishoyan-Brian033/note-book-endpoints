@@ -1,24 +1,18 @@
-CREATE OR REPLACE FUNCTION sp_delete_note(
-  p_id 
-)
-RETURNS TABLE(
-  id ,
-  title TEXT,
-  message TEXT
-) AS $$
-BEGIN
-  -- Check if note exists
-  IF NOT EXISTS (SELECT 1 FROM notes WHERE id = p_id) THEN
-    RAISE EXCEPTION 'Note with ID % not found', p_id;
-  END IF;
+DROP FUNCTION IF EXISTS delete_note(INTEGER);
 
-  -- Delete the note and return info
-  RETURN QUERY
-  DELETE FROM notes 
-  WHERE id = p_id
-  RETURNING 
-    id, 
-    title, 
-    'Note deleted successfully' AS message;
+CREATE OR REPLACE FUNCTION delete_note(p_id INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+    exists_note INTEGER;
+BEGIN
+    SELECT 1 INTO exists_note FROM notes WHERE id = p_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Note with ID % does not exist', p_id;
+    END IF;
+
+    DELETE FROM notes WHERE id = p_id;
+
+    RETURN FORMAT('Note with ID % has been deleted successfully.', p_id);
 END;
 $$ LANGUAGE plpgsql;

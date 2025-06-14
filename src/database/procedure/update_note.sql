@@ -1,34 +1,31 @@
+DROP FUNCTION IF EXISTS update_note(INTEGER, VARCHAR, TIMESTAMP, VARCHAR);
 
 CREATE OR REPLACE FUNCTION update_note(
-  p_id INTEGER,
-  p_title TEXT,
-  p_created_at TEXT,
-  p_content TEXT,
+    p_id INTEGER,
+    p_title VARCHAR(255) DEFAULT NULL,
+    p_created_at TIMESTAMP DEFAULT NULL,
+    p_content VARCHAR(255) DEFAULT NULL
 )
-RETURNS TABLE (
-  id INTEGER,
-  title TEXT,
-  created_at TEXT,
-  content TEXT,
-) AS $$
+RETURNS TABLE(id INTEGER, title VARCHAR(255), created_at TIMESTAMP, content VARCHAR(255)) AS $$
+DECLARE
+    current_title VARCHAR(255);
+    current_created_at TIMESTAMP;
+    current_content VARCHAR(255);
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM notes WHERE id = p_id) THEN
-    RAISE EXCEPTION 'Note with ID % not found', p_id;
-  END IF;
+    SELECT n.title, n.created_at, n.content
+    INTO current_title, current_created_at, current_content
+    FROM notes n WHERE n.id = p_id;
 
-  IF EXISTS (
-    SELECT 1 FROM notes WHERE title = p_title AND id != p_id
-  ) THEN
-    RAISE EXCEPTION 'Title already exists for another note';
-  END IF;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Note with ID % does not exist', p_id;
+    END IF;
 
-  UPDATE notes SET
-    title = COALESCE(p_title, title),
-    created_at = COALESCE(p_created_at, created_at),
-    content = COALESCE(p_content, content)
-  WHERE id = p_id;
-
-  RETURN QUERY
-  SELECT id, title, created_at, content FROM notes WHERE id = p_id;
+    RETURN QUERY
+    UPDATE notes
+    SET title = COALESCE(p_title, current_title),
+        created_at = COALESCE(p_created_at, current_created_at),
+        content = COALESCE(p_content, current_content)
+    WHERE notes.id = p_id
+    RETURNING notes.id, notes.title, notes.created_at, notes.content;
 END;
 $$ LANGUAGE plpgsql;

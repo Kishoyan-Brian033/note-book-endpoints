@@ -1,14 +1,12 @@
-CREATE OR REPLACE FUNCTION get_note_by_id(
-  p_id INTEGER,
-  OUT result_note notes
-) AS $$
-BEGIN
-  SELECT * INTO result_note 
-  FROM notes 
-  WHERE id = p_id;
+DROP FUNCTION IF EXISTS get_by_id(INTEGER);
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Note with ID % not found', p_id;
-  END IF;
+CREATE OR REPLACE FUNCTION get_by_id(p_id INTEGER)
+RETURNS SETOF notes AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM notes WHERE id = p_id) THEN
+        RAISE EXCEPTION 'Note with id % not found', p_id;
+    END IF;
+
+    RETURN QUERY SELECT * FROM notes WHERE id = p_id;
 END;
 $$ LANGUAGE plpgsql;

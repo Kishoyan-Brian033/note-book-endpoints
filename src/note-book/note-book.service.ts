@@ -15,44 +15,51 @@ import { note_book } from './interfaces/note-book.interface';
 
 @Injectable()
 export class NoteBookService {
-  mapRowToNote: any;
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(data: CreateNoteDto): Promise<note_book> {
+  async create(createNoteDto: CreateNoteDto): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
-        `SELECT * FROM create_note($1, $2, $3)`,
-        [data.title, data.created_at, data.content],
+        'SELECT * FROM create_note($1::TEXT, $2::TIMESTAMP, $3::TEXT)',
+        [createNoteDto.title, createNoteDto.created_at, createNoteDto.content],
       );
-
       if (result.rows.length === 0) {
-        throw new InternalServerErrorException('Failed to create note');
+        throw new NotFoundException('Note not found');
       }
-
-      return this.mapRowToNote(result.rows[0]);
-    } catch (error: any) {
-      if (error.message?.includes('already exists')) {
-        throw new ConflictException('A note with this title already exists');
+      return result.rows[0];
+    } catch (error) {
+      if (error.message.includes('already exists')) {
+        throw new ConflictException(
+          `Note with title${createNoteDto.title} already exists`,
+        );
       }
-      throw new InternalServerErrorException('Failed to create note');
+      console.error('Database error:', error);
+      throw new InternalServerErrorException('Failed to create Note');
     }
   }
 
   async findAll(): Promise<note_book[]> {
     try {
       const result = await this.databaseService.query(
-        'SELECT * FROM get_all_notes()',
+        `SELECT * FROM get_all_notes()`,
       );
-
-      return result.rows.map(this.mapRowToNote);
-    } catch {
-      throw new InternalServerErrorException('Failed to retrieve books');
+      if (result.rows.length === 0) {
+        throw new NotFoundException('No note found');
+      }
+      return result.rows;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Database error:', error);
+      throw new InternalServerErrorException('Failed to retrieve NOtes');
     }
   }
+
   async findOne(id: number): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
-        'SELECT * FROM get_note_by_id($1)',
+        'SELECT * FROM get_by_id($1)',
         [id],
       );
 
@@ -65,29 +72,24 @@ export class NoteBookService {
       throw new InternalServerErrorException('Failed to retrieve note');
     }
   }
-
   async update(id: number, data: UpdateNoteDto): Promise<note_book> {
     try {
       const result = await this.databaseService.query(
-        `SELECT * FROM sp_update_book($1, $2, $3, $4)`,
-        [data.title || null, data.create_at || null, data.content || null],
+        'SELECT * FROM update_note($1, $2, $3, $4)',
+        [id, data.title, data.create_at, data.content],
       );
 
       if (result.rows.length === 0) {
-        throw new NotFoundException(`Book with ID ${id} not found`);
-      }
-
-      return this.mapRowToNote(result.rows[0]);
-    } catch (error: any) {
-      if (error.message?.includes('not found')) {
         throw new NotFoundException(`Note with ID ${id} not found`);
       }
-      if (error.message?.includes('Title already exists')) {
-        throw new ConflictException('Another note with this title exixts');
-      }
+
+      return result.rows[0];
+    } catch (error) {
+      console.error('Database error:', error); // <== important!
       throw new InternalServerErrorException('Failed to update note');
     }
   }
+
   async delete(id: number): Promise<{ message: string }> {
     try {
       const result = await this.databaseService.query(
@@ -105,7 +107,7 @@ export class NoteBookService {
     }
   }
 
-  private mapRowToBook(row: any): note_book {
+  private mapRowToNote(row: any): note_book {
     return {
       id: row.id,
       title: row.title,

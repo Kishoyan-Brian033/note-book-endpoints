@@ -1,13 +1,7 @@
-CREATE OR REPLACE FUNCTION sp_get_all_notes()
-RETURNS TABLE (
-  id INTEGER,
-  title TEXT,
-  created_at TIMESTAMP,
-  content TEXT
-) AS $$
+CREATE OR REPLACE FUNCTION get_all_notes()
+RETURNS SETOF notes AS $$ 
 BEGIN
-  RETURN QUERY
-  SELECT id, title, created_at, content 
-  FROM notes
+    RETURN QUERY
+    SELECT * FROM notes;
 END;
 $$ LANGUAGE plpgsql;

@@ -1,17 +1,14 @@
+GET  http://localhost:3000
 
-### Create a new note
+### Create a note
 POST http://localhost:3000/note-book
 Content-Type: application/json
 
-
 {
-
-  "title": "code",
-   "created": "2022-3-8",
-   "content":"javascript algorithm"
+  "title": "prepps",
+  "created_at": "2022-03-30",
+  "content": "javascrooipt hdh"
 }
-
-
 
 ###
 
@@ -20,26 +17,25 @@ GET http://localhost:3000/note-book
 
 ###
 
-
-###
-
 ### Get a single book by ID
-GET http://localhost:3000/note-book
+GET http://localhost:3000/note-book/1
+
 
 ###
 
 ### Update a book
-PATCH http://localhost:3000/note-book
+PATCH http://localhost:3000/note-book/1
 Content-Type: application/json
 
 {
-  "availableCopies": 9,
-  "title": "Power Book II: Rariq"
+  "title": "Power Book II: Tariq",
+  "content": "Updated content here"
 }
+
+
 
 ###
 
-
-
 ### Delete
-DELETE http://localhost:3000/note-book
+DELETE http://localhost:3000/note-book/1
+

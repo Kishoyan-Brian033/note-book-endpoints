@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   ParseIntPipe,
@@ -16,7 +17,7 @@ import { UpdateNoteDto } from './dtos/update-note.dto';
 import { ApiResponse } from 'src/shared/api-response';
 import { note_book } from './interfaces/note-book.interface';
 
-@Controller('books')
+@Controller('note-book')
 export class NoteBookController {
   constructor(private readonly noteBookService: NoteBookService) {}
 
@@ -27,33 +28,39 @@ export class NoteBookController {
       const note = await this.noteBookService.create(data);
       return {
         success: true,
-        message: 'Book created successfully',
+        message: 'Note created successfully',
         data: note,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to create note',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to create note',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get()
   async findAll(): Promise<ApiResponse<note_book[]>> {
     try {
-      const note = await this.noteBookService.findAll();
+      const notes = await this.noteBookService.findAll();
       return {
         success: true,
-        message: `Retrieved ${note.length} book(s)`,
-        data: note,
+        message: `Retrieved ${notes.length} note(s)`,
+        data: notes,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to retrieve notes',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to retrieve notes',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -63,17 +70,30 @@ export class NoteBookController {
   ): Promise<ApiResponse<note_book>> {
     try {
       const note = await this.noteBookService.findOne(id);
+      if (!note) {
+        throw new HttpException(
+          {
+            success: false,
+            message: `Note with ID ${id} not found`,
+            error: 'Not Found',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
       return {
         success: true,
         message: 'Note found',
         data: note,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Book not found',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to retrieve note',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -86,15 +106,18 @@ export class NoteBookController {
       const updatedNote = await this.noteBookService.update(id, data);
       return {
         success: true,
-        message: 'Book updated successfully',
+        message: 'Note updated successfully',
         data: updatedNote,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to update book',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to update note',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -109,11 +132,14 @@ export class NoteBookController {
         message: result.message,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to permanently delete book',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to delete note',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
