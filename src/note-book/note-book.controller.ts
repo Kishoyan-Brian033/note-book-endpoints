@@ -83,6 +83,7 @@ export class NoteBookController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get by id' })
   @ApiInternalServerErrorResponse({ description: 'internal server error' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
@@ -117,6 +118,8 @@ export class NoteBookController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update ' })
+   @ApiInternalServerErrorResponse({ description: 'internal server error' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateNoteDto,
@@ -141,6 +144,8 @@ export class NoteBookController {
   }
 
   @Delete(':id/permanent')
+  @ApiOperation({ summary: 'delete' })
+   @ApiInternalServerErrorResponse({ description: 'internal server error' })
   async delete(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<null>> {

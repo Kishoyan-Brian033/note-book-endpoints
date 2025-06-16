@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Pool, PoolClient } from 'pg';
 import { createDatabasePool } from 'src/config/database.config';
